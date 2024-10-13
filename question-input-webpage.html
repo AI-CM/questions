@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问题和Prompt管理系统</title>
+    <style>
+        /* 保留之前的样式 */
+    </style>
+</head>
+<body>
+    <h1>问题和Prompt管理系统</h1>
+
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'Input')" id="defaultOpen">输入</button>
+        <button class="tablinks" onclick="openTab(event, 'QuestionList')">问题列表</button>
+        <button class="tablinks" onclick="openTab(event, 'VersionHistory')">版本历史</button>
+    </div>
+
+    <div id="Input" class="tabcontent">
+        <h2>输入新问题和Prompt</h2>
+        <textarea id="questionInput" placeholder="在这里输入您的问题..."></textarea>
+        <textarea id="promptInput" placeholder="在这里输入对应的prompt..."></textarea>
+        <button onclick="addQuestionAndPrompt()">添加问题和Prompt</button>
+        <button onclick="saveVersion()">保存新版本</button>
+        <button onclick="syncToGitHub()">同步到GitHub</button>
+        <div id="questionList"></div>
+    </div>
+
+    <div id="QuestionList" class="tabcontent">
+        <h2>所有问题列表</h2>
+        <div id="allQuestionsList"></div>
+    </div>
+
+    <div id="VersionHistory" class="tabcontent">
+        <h2>版本历史</h2>
+        <div id="versionList" class="version-list"></div>
+    </div>
+
+    <script>
+        let questionsAndPrompts = [];
+        let versions = [];
+
+        // 保留之前的函数：openTab, addQuestionAndPrompt, updateQuestionList, loadAllQuestions
+
+        function saveVersion() {
+            const timestamp = new Date().toISOString();
+            const version = {
+                timestamp: timestamp,
+                data: JSON.parse(JSON.stringify(questionsAndPrompts))
+            };
+            versions.push(version);
+            localStorage.setItem('versions', JSON.stringify(versions));
+            alert('新版本已保存！');
+            loadVersions();
+        }
+
+        function syncToGitHub() {
+            const data = JSON.stringify({
+                versions: versions,
+                currentData: questionsAndPrompts
+            });
+
+            fetch('/sync-to-github', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: data
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('数据已成功同步到GitHub！');
+                } else {
+                    alert('同步到GitHub失败：' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('同步失败，请稍后重试。');
+            });
+        }
+
+        // 保留之前的函数：loadVersions, loadVersion
+
+        // 初始化：从localStorage加载数据
+        const storedVersions = localStorage.getItem('versions');
+        if (storedVersions) {
+            versions = JSON.parse(storedVersions);
+            if (versions.length > 0) {
+                questionsAndPrompts = versions[versions.length - 1].data;
+                updateQuestionList();
+            }
+        }
+
+        document.getElementById("defaultOpen").click();
+    </script>
+</body>
+</html>
