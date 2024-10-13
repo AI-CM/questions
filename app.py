@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # 使用环境变量存储GitHub令牌
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
-REPO_NAME = 'your-username/your-repo-name'  # 替换为您的GitHub用户名和仓库名
+REPO_NAME = 'AICM/questions'  # 替换为您的GitHub用户名和仓库名
 
 g = Github(GITHUB_TOKEN)
 
