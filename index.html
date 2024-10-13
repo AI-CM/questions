@@ -91,6 +91,79 @@
     </div>
 
     <script>
+        // 定义 Worker 的基础 URL
+        const WORKER_BASE_URL = 'https://aicm.alonegg.workers.dev/';
+        
+        let questionsAndPrompts = [];
+        let versions = [];
+
+        // ... 其他函数 ...
+
+        async function saveVersion() {
+            const timestamp = new Date().toISOString();
+            const version = {
+                timestamp: timestamp,
+                data: questionsAndPrompts
+            };
+
+            try {
+                const response = await fetch(`${WORKER_BASE_URL}/api/save-version`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(version)
+                });
+
+                if (response.ok) {
+                    versions.push(version);
+                    alert('新版本已保存！');
+                    loadVersions();
+                } else {
+                    alert('保存失败，请稍后重试。');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('保存失败，请稍后重试。');
+            }
+        }
+
+        async function loadVersions() {
+            try {
+                const response = await fetch(`${WORKER_BASE_URL}/api/get-versions`);
+                if (response.ok) {
+                    versions = await response.json();
+                    // ... 余下的代码保持不变 ...
+                } else {
+                    alert('加载版本失败，请稍后重试。');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('加载版本失败，请稍后重试。');
+            }
+        }
+
+        async function initialize() {
+            try {
+                const response = await fetch(`${WORKER_BASE_URL}/api/get-latest-version`);
+                if (response.ok) {
+                    const latestVersion = await response.json();
+                    if (latestVersion) {
+                        questionsAndPrompts = latestVersion.data;
+                        updateQuestionList();
+                    }
+                }
+            } catch (error) {
+                console.error('Error initializing:', error);
+            }
+        }
+
+        // ... 其他函数 ...
+
+        initialize();
+        document.getElementById("defaultOpen").click();
+    </script>
+    <script>
         let questionsAndPrompts = [];
         let versions = [];
 
